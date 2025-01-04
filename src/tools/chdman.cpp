@@ -40,6 +40,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <jni.h>
 
 using util::string_format;
 
@@ -137,23 +138,23 @@ constexpr bool OSD_PRINTF_VERBOSE = false;
 typedef std::unordered_map<std::string, std::string *> parameters_map;
 
 template <typename Format, typename... Params>
-[[noreturn]] static void report_error(int error, Format &&fmt, Params &&...args);
+[[noreturn]] void report_error(int error, Format &&fmt, Params &&...args);
 
-static void do_info(parameters_map &params);
-static void do_verify(parameters_map &params);
-static void do_create_raw(parameters_map &params);
-static void do_create_hd(parameters_map &params);
-static void do_create_cd(parameters_map &params);
-static void do_create_dvd(parameters_map &params);
-static void do_create_ld(parameters_map &params);
-static void do_copy(parameters_map &params);
-static void do_extract_raw(parameters_map &params);
-static void do_extract_cd(parameters_map &params);
-static void do_extract_ld(parameters_map &params);
-static void do_add_metadata(parameters_map &params);
-static void do_del_metadata(parameters_map &params);
-static void do_dump_metadata(parameters_map &params);
-static void do_list_templates(parameters_map &params);
+void do_info(parameters_map &params);
+void do_verify(parameters_map &params);
+void do_create_raw(parameters_map &params);
+void do_create_hd(parameters_map &params);
+void do_create_cd(parameters_map &params);
+void do_create_dvd(parameters_map &params);
+void do_create_ld(parameters_map &params);
+void do_copy(parameters_map &params);
+void do_extract_raw(parameters_map &params);
+void do_extract_cd(parameters_map &params);
+void do_extract_ld(parameters_map &params);
+void do_add_metadata(parameters_map &params);
+void do_del_metadata(parameters_map &params);
+void do_dump_metadata(parameters_map &params);
+void do_list_templates(parameters_map &params);
 
 
 
@@ -943,7 +944,7 @@ static const hd_template s_hd_templates[] =
 //-------------------------------------------------
 
 template <typename Format, typename... Params>
-static void report_error(int error, Format &&fmt, Params &&...args)
+void report_error(int error, Format &&fmt, Params &&...args)
 {
 	// output to stderr
 	util::stream_format(std::cerr, std::forward<Format>(fmt), std::forward<Params>(args)...);
@@ -960,7 +961,7 @@ static void report_error(int error, Format &&fmt, Params &&...args)
 //-------------------------------------------------
 
 template <typename Format, typename... Params>
-static void progress(bool forceit, Format &&fmt, Params &&...args)
+void progress(bool forceit, Format &&fmt, Params &&...args)
 {
 	// skip if it hasn't been long enough
 	clock_t curtime = clock();
@@ -978,7 +979,7 @@ static void progress(bool forceit, Format &&fmt, Params &&...args)
 //  print_help - print help for all the commands
 //-------------------------------------------------
 
-static int print_help(const std::string &argv0, const char *error = nullptr)
+int print_help(const std::string &argv0, const char *error = nullptr)
 {
 	// print the error message first
 	if (error)
@@ -1001,7 +1002,7 @@ static int print_help(const std::string &argv0, const char *error = nullptr)
 //  command
 //-------------------------------------------------
 
-static int print_help(const std::string &argv0, const command_description &desc, const char *error = nullptr)
+int print_help(const std::string &argv0, const command_description &desc, const char *error = nullptr)
 {
 	// print the error message first
 	if (error != nullptr)
@@ -1112,7 +1113,7 @@ uint64_t parse_number(const char *string)
 //  compute a best guess CHS value set
 //-------------------------------------------------
 
-static void guess_chs(
+void guess_chs(
 		const std::string *filename,
 		uint64_t filesize,
 		int sectorsize,
@@ -1158,7 +1159,7 @@ static void guess_chs(
 //  standard set of input CHD parameters
 //-------------------------------------------------
 
-static void parse_input_chd_parameters(const parameters_map &params, chd_file &input_chd, chd_file &input_parent_chd, bool writeable = false)
+void parse_input_chd_parameters(const parameters_map &params, chd_file &input_chd, chd_file &input_parent_chd, bool writeable = false)
 {
 	// process input parent file
 	auto input_chd_parent_str = params.find(OPTION_INPUT_PARENT);
@@ -1185,7 +1186,7 @@ static void parse_input_chd_parameters(const parameters_map &params, chd_file &i
 //  parameters in a standard way
 //-------------------------------------------------
 
-static std::pair<uint64_t, uint64_t> parse_input_start_end(
+std::pair<uint64_t, uint64_t> parse_input_start_end(
 		const parameters_map &params,
 		uint64_t logical_size,
 		uint32_t hunkbytes,
@@ -1247,7 +1248,7 @@ static std::pair<uint64_t, uint64_t> parse_input_start_end(
 	return std::make_pair(input_start, input_length ? (input_start + *input_length) : logical_size);
 }
 
-static std::tuple<uint64_t, uint64_t, uint64_t> parse_input_start_end(
+std::tuple<uint64_t, uint64_t, uint64_t> parse_input_start_end(
 		const parameters_map &params,
 		util::random_read &input_file,
 		uint32_t hunkbytes,
@@ -1268,7 +1269,7 @@ static std::tuple<uint64_t, uint64_t, uint64_t> parse_input_start_end(
 //  unless --force is specified
 //-------------------------------------------------
 
-static void check_existing_output_file(const parameters_map &params, std::string_view filename)
+void check_existing_output_file(const parameters_map &params, std::string_view filename)
 {
 	if (params.find(OPTION_OUTPUT_FORCE) == params.end())
 	{
@@ -1288,7 +1289,7 @@ static void check_existing_output_file(const parameters_map &params, std::string
 //  standard set of output CHD parameters
 //-------------------------------------------------
 
-static const std::string *parse_output_chd_parameters(const parameters_map &params, chd_file &output_parent_chd)
+const std::string *parse_output_chd_parameters(const parameters_map &params, chd_file &output_parent_chd)
 {
 	// process output parent file
 	const auto output_chd_parent_str = params.find(OPTION_OUTPUT_PARENT);
@@ -1313,7 +1314,7 @@ static const std::string *parse_output_chd_parameters(const parameters_map &para
 //  parameter in a standard way
 //-------------------------------------------------
 
-static uint32_t parse_hunk_size(
+uint32_t parse_hunk_size(
 		const parameters_map &params,
 		const chd_file &output_parent,
 		uint32_t required_granularity,
@@ -1347,7 +1348,7 @@ static uint32_t parse_hunk_size(
 //  compression parameter string
 //-------------------------------------------------
 
-static void parse_compression(const parameters_map &params, const std::array<chd_codec_type, 4> &defaults, const chd_file &output_parent, chd_codec_type compression[4])
+void parse_compression(const parameters_map &params, const std::array<chd_codec_type, 4> &defaults, const chd_file &output_parent, chd_codec_type compression[4])
 {
 	// TODO: should we default to the same compression as the output parent?
 	std::copy(std::begin(defaults), std::end(defaults), compression);
@@ -1391,7 +1392,7 @@ static void parse_compression(const parameters_map &params, const std::array<chd
 //  command
 //-------------------------------------------------
 
-static void parse_numprocessors(const parameters_map &params)
+void parse_numprocessors(const parameters_map &params)
 {
 	auto numprocessors_str = params.find(OPTION_NUMPROCESSORS);
 	if (numprocessors_str == params.end())
@@ -1411,7 +1412,7 @@ static void parse_numprocessors(const parameters_map &params)
 //  describing a set of compressors
 //-------------------------------------------------
 
-static std::string compression_string(chd_codec_type compression[4])
+std::string compression_string(chd_codec_type compression[4])
 {
 	// output compression types
 	if (compression[0] == CHD_CODEC_NONE)
@@ -1440,7 +1441,7 @@ static std::string compression_string(chd_codec_type compression[4])
 //  open_input_file - open input file if specified
 //-------------------------------------------------
 
-static std::pair<util::core_file::ptr, const std::string *> open_input_file(const parameters_map &params)
+std::pair<util::core_file::ptr, const std::string *> open_input_file(const parameters_map &params)
 {
 	const auto path = params.find(OPTION_INPUT);
 	if (path == params.end())
@@ -1460,7 +1461,7 @@ static std::pair<util::core_file::ptr, const std::string *> open_input_file(cons
 //  without parent CHD file
 //-------------------------------------------------
 
-static void create_output_chd(
+void create_output_chd(
 		chd_file_compressor &compressor,
 		std::string_view path,
 		uint64_t logical_size,
@@ -1483,7 +1484,7 @@ static void create_output_chd(
 //  compress_common - standard compression loop
 //-------------------------------------------------
 
-static void compress_common(chd_file_compressor &chd)
+void compress_common(chd_file_compressor &chd)
 {
 	// begin compressing
 	chd.compress_begin();
@@ -1617,7 +1618,7 @@ void output_track_metadata(int mode, util::core_file &file, int tracknum, const 
 //  a drive image
 //-------------------------------------------------
 
-static void do_info(parameters_map &params)
+void do_info(parameters_map &params)
 {
 	bool verbose = params.find(OPTION_VERBOSE) != params.end();
 	// parse out input files
@@ -1766,7 +1767,7 @@ static void do_info(parameters_map &params)
 //  do_verify - validate the SHA-1 on a CHD
 //-------------------------------------------------
 
-static void do_verify(parameters_map &params)
+void do_verify(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -1851,7 +1852,7 @@ static void do_verify(parameters_map &params)
 //  image from a raw file
 //-------------------------------------------------
 
-static void do_create_raw(parameters_map &params)
+void do_create_raw(parameters_map &params)
 {
 	// process input file
 	auto [input_file, input_file_str] = open_input_file(params);
@@ -1931,7 +1932,7 @@ static void do_create_raw(parameters_map &params)
 //  disk image from a raw file
 //-------------------------------------------------
 
-static void do_create_hd(parameters_map &params)
+void do_create_hd(parameters_map &params)
 {
 	// process input file
 	auto [input_file, input_file_str] = open_input_file(params);
@@ -2135,7 +2136,7 @@ static void do_create_hd(parameters_map &params)
 //  image from a raw file
 //-------------------------------------------------
 
-static void do_create_cd(parameters_map &params)
+void do_create_cd(parameters_map &params)
 {
 	// process input file
 	cdrom_file::track_input_info track_info;
@@ -2215,7 +2216,7 @@ static void do_create_cd(parameters_map &params)
 //  image from a raw file
 //-------------------------------------------------
 
-static void do_create_dvd(parameters_map &params)
+void do_create_dvd(parameters_map &params)
 {
 	// process input file
 	auto [input_file, input_file_str] = open_input_file(params);
@@ -2283,7 +2284,7 @@ static void do_create_dvd(parameters_map &params)
 //  input AVI file and metadata
 //-------------------------------------------------
 
-static void do_create_ld(parameters_map &params)
+void do_create_ld(parameters_map &params)
 {
 	// process input file
 	avi_file::ptr input_file;
@@ -2395,7 +2396,7 @@ static void do_create_ld(parameters_map &params)
 //  pick the preferred type
 //-------------------------------------------------
 
-static const std::array<chd_codec_type, 4> &get_compression_defaults(chd_file &input_chd)
+const std::array<chd_codec_type, 4> &get_compression_defaults(chd_file &input_chd)
 {
 	std::error_condition err = input_chd.check_is_hd();
 	if (err == chd_file::error::METADATA_NOT_FOUND)
@@ -2428,7 +2429,7 @@ static const std::array<chd_codec_type, 4> &get_compression_defaults(chd_file &i
 //  another CHD
 //-------------------------------------------------
 
-static void do_copy(parameters_map &params)
+void do_copy(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -2535,7 +2536,7 @@ static void do_copy(parameters_map &params)
 //  CHD image
 //-------------------------------------------------
 
-static void do_extract_raw(parameters_map &params)
+void do_extract_raw(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -2611,7 +2612,7 @@ static void do_extract_raw(parameters_map &params)
 //  CHD image
 //-------------------------------------------------
 
-static void do_extract_cd(parameters_map &params)
+void do_extract_cd(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -3021,7 +3022,7 @@ static void do_extract_cd(parameters_map &params)
 //  CHD image
 //-------------------------------------------------
 
-static void do_extract_ld(parameters_map &params)
+void do_extract_ld(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -3170,7 +3171,7 @@ static void do_extract_ld(parameters_map &params)
 //  file
 //-------------------------------------------------
 
-static void do_add_metadata(parameters_map &params)
+void do_add_metadata(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -3249,7 +3250,7 @@ static void do_add_metadata(parameters_map &params)
 //  do_del_metadata - remove metadata from a CHD
 //-------------------------------------------------
 
-static void do_del_metadata(parameters_map &params)
+void do_del_metadata(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -3289,7 +3290,7 @@ static void do_del_metadata(parameters_map &params)
 //  do_dump_metadata - dump metadata from a CHD
 //-------------------------------------------------
 
-static void do_dump_metadata(parameters_map &params)
+void do_dump_metadata(parameters_map &params)
 {
 	// parse out input files
 	chd_file input_parent_chd;
@@ -3369,7 +3370,7 @@ static void do_dump_metadata(parameters_map &params)
 //  do_list_templates - list hard drive templates
 //-------------------------------------------------
 
-static void do_list_templates(parameters_map &params)
+void do_list_templates(parameters_map &params)
 {
 	util::stream_format(std::cout, "\n");
 	util::stream_format(std::cout, "ID  Manufacturer  Model           Cylinders  Heads  Sectors  Sector Size  Total Size\n");
@@ -3394,7 +3395,8 @@ static void do_list_templates(parameters_map &params)
 //-------------------------------------------------
 //  main - entry point
 //-------------------------------------------------
-
+// on Android we build chdman as a shared library with a JNI interface to access some of its functions
+#ifndef __ANDROID__
 int CLIB_DECL main(int argc, char *argv[])
 {
 	const std::vector<std::string> args = osd_get_command_line(argc, argv);
@@ -3515,4 +3517,35 @@ int CLIB_DECL main(int argc, char *argv[])
 
 	// print generic help if nothing found
 	return print_help(args[0]);
+}
+#endif
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_chdman_utils_Chdman_createcd(JNIEnv *env, jobject obj, jstring input, jstring output){
+    parameters_map params;
+    std::string in = env->GetStringUTFChars(input, 0);
+    std::string out = env->GetStringUTFChars(output, 0);
+    params.insert(std::make_pair(OPTION_INPUT,&in));
+    params.insert(std::make_pair(OPTION_OUTPUT, &out));
+    try {
+        do_create_cd(params);
+    }
+    catch (std::exception& e)
+    {
+    }
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_chdman_utils_Chdman_createdvd(JNIEnv *env, jobject obj, jstring input, jstring output){
+    parameters_map params;
+    std::string in = env->GetStringUTFChars(input, 0);
+    std::string out = env->GetStringUTFChars(output, 0);
+    params.insert(std::make_pair(OPTION_INPUT,&in));
+    params.insert(std::make_pair(OPTION_OUTPUT, &out));
+    try {
+        do_create_dvd(params);
+    }
+    catch (std::exception& e)
+    {
+    }
 }

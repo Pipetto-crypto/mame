@@ -12,7 +12,7 @@
 #include "osdcore.h"
 #include "osdlib.h"
 
-#include <SDL2/SDL.h>
+#include "SDL/SDL.h"
 
 #include <csignal>
 #include <cstdio>
@@ -68,7 +68,7 @@ void osd_break_into_debugger(const char *message)
 #endif
 }
 
-#ifdef SDLMAME_ANDROID
+#if defined(__ANDROID__) || defined(SDLNAME_ANDROID)
 std::string osd_get_clipboard_text() noexcept
 {
 	return std::string();

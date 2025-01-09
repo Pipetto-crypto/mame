@@ -80,6 +80,13 @@
  */
 #undef ENABLE_RICE_PARAMETER_SEARCH
 
+#ifndef HAVE_FSEEKO
+#define fseeko(s, o, w) fseek(s, o ,w)
+#endif
+
+#ifndef HAVE_FTELLO
+#define ftello(fp) ftell(fp)
+#endif
 
 typedef struct {
 	FLAC__int32 *data[FLAC__MAX_CHANNELS];

@@ -55,6 +55,14 @@
 /* Alias the first (in share/alloc.h) to the second (in src/libFLAC/memory.c). */
 #define safe_malloc_mul_2op_ safe_malloc_mul_2op_p
 
+#ifndef HAVE_FSEEKO
+#define fseeko(s, o, w) fseek(s, o ,w)
+#endif
+
+#ifndef HAVE_FTELLO
+#define ftello(fp) ftell(fp)
+#endif
+
 /****************************************************************************
  *
  * Local function declarations

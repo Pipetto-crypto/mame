@@ -54,6 +54,14 @@
 #include "private/memory.h"
 #include "private/macros.h"
 
+#ifndef HAVE_FSEEKO
+#define fseeko(s, o, w) fseek(s, o ,w)
+#endif
+
+#ifndef HAVE_FTELLO
+#define ftello(fp) ftell(fp)
+#endif
+
 
 /* technically this should be in an "export.c" but this is convenient enough */
 FLAC_API int FLAC_API_SUPPORTS_OGG_FLAC = FLAC__HAS_OGG;
